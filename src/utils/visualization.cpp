@@ -159,6 +159,52 @@ void pubOdometry(const Estimator &estimator, const std_msgs::Header &header)
         path.poses.push_back(pose_stamped);
         pub_path.publish(path);
 
+        ofstream foutC(VILO_RESULT_PATH, ios::app);
+        foutC.setf(ios::fixed, ios::floatfield);
+        foutC.precision(9);
+        foutC << header.stamp.toSec()<< " ";
+        foutC.precision(5);
+
+        // vilo: convert IMU position to robot body position
+        // Quaterniond tmp_Q;
+        // tmp_Q = Quaterniond(estimator.Rs[WINDOW_SIZE]);
+        // Eigen::Vector3d p_wb(estimator.Ps[WINDOW_SIZE].x(), estimator.Ps[WINDOW_SIZE].y(), estimator.Ps[WINDOW_SIZE].z());
+        // Eigen::Vector3d v_wb(estimator.Vs[WINDOW_SIZE].x(), estimator.Vs[WINDOW_SIZE].y(), estimator.Vs[WINDOW_SIZE].z());
+        // Eigen::Vector3d omega = estimator.latest_gyr_0 - estimator.latest_Bg;
+        // Eigen::Vector3d p_wr = p_wb + tmp_Q.toRotationMatrix() * estimator.R_br * estimator.p_br;
+
+        // Eigen::Vector3d v_wr = v_wb + tmp_Q.toRotationMatrix() * Utility::skewSymmetric(omega) * estimator.R_br * estimator.p_br;
+
+        // // kf
+        // Eigen::Matrix<double, EKF_STATE_SIZE, 1> kf_state = kf.get_state();
+        foutC
+            << p_wr.x() << " "                    // 2
+            << p_wr.y() << " "                    // 3
+            << p_wr.z() << " "                    // 4
+            // << v_wr.x() << ","                    // 5
+            // << v_wr.y() << ","                    // 6
+            // << v_wr.z() << ","                    // 7
+            // << kf_state[0] << ","                 // 8
+            // << kf_state[1] << ","                 // 9
+            // << kf_state[2] << ","                 // 10
+            // << kf_state[3] << ","                 // 11
+            // << kf_state[4] << ","                 // 12
+            // << kf_state[5] << ","                 // 13
+            // << data.opti_pos[0] << ","            // 14
+            // << data.opti_pos[1] << ","            // 15
+            // << data.opti_pos[2] << ","            // 16
+            // << estimator.Rho1[WINDOW_SIZE] << "," // 17
+            // << estimator.Rho2[WINDOW_SIZE] << "," // 18
+            // << estimator.Rho3[WINDOW_SIZE] << "," // 19
+            // << estimator.Rho4[WINDOW_SIZE] << "," // 20
+            // << endl;
+            << tmp_Q.x() << " "
+            << tmp_Q.y() << " "
+            << tmp_Q.z() << " "
+            << tmp_Q.w()
+            << endl;
+        foutC.close();
+
         Eigen::Vector3d tmp_T = estimator.Ps[WINDOW_SIZE];
         printf("time: %f, t: %f %f %f q: %f %f %f %f \n", header.stamp.toSec(), tmp_T.x(), tmp_T.y(), tmp_T.z(),
                tmp_Q.w(), tmp_Q.x(), tmp_Q.y(), tmp_Q.z());
